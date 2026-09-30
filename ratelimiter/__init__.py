@@ -3,8 +3,8 @@ from .middleware import RateLimitMiddleware, default_identity
 
 __all__ = [
     "Decision",
+    "RateLimitMiddleware",
     "SlidingWindowLimiter",
     "TokenBucketLimiter",
-    "RateLimitMiddleware",
     "default_identity",
 ]
