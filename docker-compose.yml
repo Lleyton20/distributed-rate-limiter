@@ -1,0 +1,30 @@
+# Three API replicas behind an nginx load balancer, sharing one Redis.
+# Try it:  docker compose up --build
+#          python bench/multi_instance.py --urls http://localhost:8001 http://localhost:8002 http://localhost:8003
+x-api: &api
+  build: .
+  environment:
+    REDIS_URL: redis://redis:6379/0
+    RL_ALGORITHM: token_bucket
+    RL_CAPACITY: "100"
+    RL_REFILL_PER_SEC: "0.001"
+    RL_FAIL_OPEN: "true"
+  depends_on: [redis]
+  healthcheck:
+    test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health')"]
+    interval: 2s
+    timeout: 2s
+    retries: 15
+
+services:
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+  api1: { <<: *api, ports: ["8001:8000"] }
+  api2: { <<: *api, ports: ["8002:8000"] }
+  api3: { <<: *api, ports: ["8003:8000"] }
+  lb:
+    image: nginx:alpine
+    volumes: ["./deploy/nginx.conf:/etc/nginx/nginx.conf:ro"]
+    ports: ["8080:80"]
+    depends_on: [api1, api2, api3]

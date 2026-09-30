@@ -1,0 +1,12 @@
+[project]
+name = "distributed-rate-limiter"
+version = "1.0.0"
+description = "Redis-backed distributed rate limiter (token bucket + sliding window) with FastAPI middleware"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
+[tool.ruff]
+line-length = 120
